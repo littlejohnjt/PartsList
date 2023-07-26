@@ -1,55 +1,50 @@
 ﻿@page "/vendors"
 @using PartsList.Client.Services;
 @using PartsList.Shared.Models;
+@using PartsList.Client.Components;
 @inject VendorManager vendorManager;
 
 <PageTitle>Vendors</PageTitle>
 
-@if (vendors != null && vendors.Any())
-{
-    <span>&nbsp;Search by Name:&nbsp;</span>
-    <input @bind="@searchName" />
-    <button @onclick="Search">Search</button>
-    <br />
-    <br />
+<div class="mb-3 ">
+    <label class="form-label">Search by Vendor Name:</label>
+    <input class="form-control" @bind="@searchName" style="width:30%" />
+</div>
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="Search">Search</button>
+    <button class="btn btn-primary" @onclick="ClearSearch">Clear</button>
+</div>
 
-    <button @onclick="GetAllVendors">Show All</button>
-    <br />
-    <br />
-    <select @onchange="VendorSelected" size="10" style="width:100%;">
+<div class="mb-3">
+    <select class="form-select" @onchange="VendorSelected" size="10" style="width:100%;">
         @foreach (var _vendor in vendors)
         {
-            <option value="@_vendor.Id">@_vendor.Name</option>
+            <option value="@_vendor.Id" style="margin-top: 10px; font-size:large;">@_vendor.Name</option>
         }
     </select>
-    <br />
-    <br />
-}
-else
-{
-    <i>Loading verdors ...</i>
-}
+</div>
 
-<button @onclick="AddVendor">Add Vendor</button>
+<div>
+    <button class="btn btn-primary" @onclick="AddVendor" disabled="@(DisableAddVendorButton())">Add Vendor</button>
+    <button class="btn btn-primary" @onclick="UpdateVendor" disabled="@(DisableUpdateButton())">Update</button>
+    <button class="btn btn-danger" @onclick="DeleteVendor" disabled="@(DisableDeleteButton())">Delete</button>
+</div>
 
-@if (vendor != null)
-{
-    <span>&nbsp;Update Name:&nbsp;</span>
-    <input @bind="@vendor.Name" />
-    <button @onclick="UpdateVendor">Update</button>
-    <br />
-    <br />
-    <button @onclick="DeleteVendor">Delete</button>
+<div class="mb-3" style="margin-top:10px;">
+    <AddEditVendor @ref="addEditVendorComponent" VendorsUpdatedCallback="VendorsUpdated" 
+        errorMessage="errorMessage" />
+</div>
 
-}
-<br />
-<span style="color:red;">@errorMessage</span>
+<div class="mb-3">
+    <label class="form-label" style="color:darkred; margin-top:10px;">@errorMessage</label>
+</div>
 
 @code {
     List<Vendor> vendors = new List<Vendor>();
     Vendor vendor = null;
     string searchName = "";
     string errorMessage = "";
+    AddEditVendor addEditVendorComponent = new AddEditVendor();
 
     protected async Task DeleteVendor()
     {
@@ -75,23 +70,15 @@ else
 
     protected async Task UpdateVendor()
     {
-        errorMessage = "";
-        var vendorToUpdate = (from _vendor in vendors
-                              where _vendor.Id == vendor.Id
-                              select _vendor).FirstOrDefault();
+        if (addEditVendorComponent == null) return;
 
-        if (vendorToUpdate == null) return;
+        addEditVendorComponent.isVisible = true;
+        addEditVendorComponent.isInEditMode = true;
+        addEditVendorComponent.vendors = vendors;
+        addEditVendorComponent.vendor = vendor;
+        addEditVendorComponent.Show();
 
-        var updatedVendorIndex = vendors.IndexOf(vendorToUpdate);
-        var updatedVendor = vendorManager.Update(vendorToUpdate);
-
-        if (updatedVendor == null)
-        {
-            errorMessage = $"Error updating vendor {vendorToUpdate.Name}";
-            return;
-        }
-
-        vendors[updatedVendorIndex] = updatedVendor.Result;
+        await InvokeAsync(StateHasChanged);
     }
 
     protected async Task Search()
@@ -109,6 +96,12 @@ else
         vendors = result.ToList<Vendor>();
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    protected async Task ClearSearch()
+    {
+        searchName = "";
+        await GetAllVendors();
     }
 
     protected async Task GetAllVendors()
@@ -140,18 +133,14 @@ else
 
     protected async Task AddVendor()
     {
-        errorMessage = "";
-        var Vendor = new Vendor();
-        var result = await vendorManager.Insert(Vendor);
-        if (result != null)
-        {
-            vendors.Add(result);
-            vendor = result;
-        }
-        else
-        {
-            errorMessage = "Could not add vendor";
-        }
+        if (addEditVendorComponent == null) return;
+
+        addEditVendorComponent.isVisible = true;
+        addEditVendorComponent.isInEditMode = false;
+        addEditVendorComponent.vendors = vendors;
+        addEditVendorComponent.vendor = new Vendor();
+        addEditVendorComponent.Show();
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -173,4 +162,23 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
+    public async void VendorsUpdated()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected bool DisableAddVendorButton()
+    {
+        return addEditVendorComponent.isVisible;
+    }
+
+    protected bool DisableUpdateButton()
+    {
+        return addEditVendorComponent.isVisible || vendor == null;
+    }
+
+    protected bool DisableDeleteButton()
+    {
+        return addEditVendorComponent.isVisible || vendor == null;
+    }
 }

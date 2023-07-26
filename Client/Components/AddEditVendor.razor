@@ -1,0 +1,158 @@
+﻿@using PartsList.Shared.Models;
+@using PartsList.Client.Services;
+@inject VendorManager vendorManager;
+
+@if (isVisible)
+{
+    <h3>@(isInEditMode ? "Edit Vendor" : "Add Vendor")</h3>
+    <EditForm Model="@vendor" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <button class="btn" @onclick="Hide">Cancel</button>
+        </div>
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <InputText @bind-Value="vendor.Name" class="form-control" />
+            <ValidationMessage For="() => vendor.Name" />
+        </div>
+        <div class="mb-3">
+            <label for="Website" class="form-label">Website</label>
+            <InputText @bind-Value="vendor.Website" class="form-control" />
+            <ValidationMessage For="() => vendor.Website" />
+        </div>
+        <div class="mb-3">
+            <label for="PocName" class="form-label">Point of Contact</label>
+            <InputText @bind-Value="vendor.PocName" class="form-control" />
+            <ValidationMessage For="() => vendor.PocName" />
+        </div>
+        <div class="mb-3">
+            <label for="Email" class="form-label">Email Address</label>
+            <InputText @bind-Value="vendor.Email" class="form-control" />
+            <ValidationMessage For="() => vendor.Email" />
+        </div>
+        <div class="mb-3">
+            <label for="Phone" class="form-label">Phone Number</label>
+            <InputText @bind-Value="vendor.Phone" class="form-control" />
+            <ValidationMessage For="() => vendor.Phone" />
+        </div>
+        <div class="mb-3">
+            <label for="Fax" class="form-label">Fax Number</label>
+            <InputText @bind-Value="vendor.Fax" class="form-control" />
+            <ValidationMessage For="() => vendor.Fax" />
+        </div>
+        <div class="mb-3">
+            <label for="AddressLine1" class="form-label">Address Line 1</label>
+            <InputText @bind-Value="vendor.AddressLine1" class="form-control" />
+            <ValidationMessage For="() => vendor.AddressLine1" />
+        </div>
+        <div class="mb-3">
+            <label for="AddressLine2" class="form-label">Address Line 2</label>
+            <InputText @bind-Value="vendor.AddressLine2" class="form-control" />
+            <ValidationMessage For="() => vendor.AddressLine2" />
+        </div>
+        <div class="mb-3">
+            <label for="City" class="form-label">City</label>
+            <InputText @bind-Value="vendor.City" class="form-control" />
+            <ValidationMessage For="() => vendor.City" />
+        </div>
+        <div class="mb-3">
+            <label for="State" class="form-label">State</label>
+            <InputText @bind-Value="vendor.State" class="form-control" />
+            <ValidationMessage For="() => vendor.State" />
+        </div>
+        <div class="mb-3">
+            <label for="PostalCode" class="form-label">Postal Code</label>
+            <InputText @bind-Value="vendor.PostalCode" class="form-control" />
+            <ValidationMessage For="() => vendor.PostalCode" />
+        </div>
+        <div class="mb-3">
+            <label for="CageCode" class="form-label">Cage Code</label>
+            <InputText @bind-Value="vendor.CageCode" class="form-control" />
+            <ValidationMessage For="() => vendor.CageCode" />
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" @onclick=@(() => closeOnSubmit = true)  type="submit">Save</button>
+            <button class="btn btn-primary" @onclick=@(() => closeOnSubmit = false) type="submit">Save and Add</button>
+            <button class="btn" @onclick="Hide">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Vendor vendor { get; set; }
+    [Parameter]
+    public IList<Vendor> vendors { get; set; }
+    [Parameter]
+    public bool isInEditMode { get; set; } = false;
+    [Parameter]
+    public bool isVisible { get; set; } = false;
+    [Parameter]
+    public EventCallback VendorsUpdatedCallback { get; set; }
+    [Parameter]
+    public string errorMessage { get; set; }
+    public bool closeOnSubmit = false;
+
+    /// <summary>
+    /// Show the component
+    /// </summary>
+    public async void Show()
+    {
+        isVisible = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Hide the component
+    /// </summary>
+    public async void Hide()
+    {
+        isVisible = false;
+        await InvokeAsync(StateHasChanged);
+        await VendorsUpdatedCallback.InvokeAsync();
+    }
+
+    protected async void Submit()
+    {
+        if (!isInEditMode)
+        {
+            var result = await vendorManager.Insert(vendor);
+            if (result != null)
+            {
+                vendors.Add(result);
+                vendor = result;
+            }
+            else
+            {
+                errorMessage = "Could not add vendor";
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            var vendorToUpdate = (from _vendor in vendors
+                                  where _vendor.Id == vendor.Id
+                                  select _vendor).FirstOrDefault();
+
+            if (vendorToUpdate == null) return;
+
+            var updatedVendorIndex = vendors.IndexOf(vendorToUpdate);
+            var updatedVendor = await vendorManager.Update(vendor);
+
+            if (updatedVendor == null)
+            {
+                errorMessage = $"Error updating vendor {vendorToUpdate.Name}";
+                return;
+            }
+
+            vendors[updatedVendorIndex] = updatedVendor;
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        if (closeOnSubmit)
+            Hide();
+    }
+}

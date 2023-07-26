@@ -7,14 +7,14 @@ namespace PartsList.Client.Services;
 
 public class VendorManager : APIRepository<Vendor>
 {
-    public VendorManager(HttpClient httpClient, string controllerName, string primaryKeyName) 
-        : base(httpClient, controllerName, primaryKeyName) { }
+    public VendorManager(HttpClient httpClient) 
+        : base(httpClient, "vendors", "Id") { }
 
     public async Task<IEnumerable<Vendor>> GetByVendorName(string VendorName)
     {
         try
         {
-            var url = $"vendors/searchbynam/{WebUtility.HtmlEncode(VendorName)}";
+            var url = $"{_controllerName}/searchbyname/{WebUtility.HtmlEncode(VendorName)}";
             var result = await _httpClient.GetAsync(url);
             result.EnsureSuccessStatusCode();
             string responseBody = await result.Content.ReadAsStringAsync();

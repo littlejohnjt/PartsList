@@ -7,7 +7,9 @@ using PartsList.Shared.Models;
 
 namespace PartsList.Server.Controllers
 {
-    public class VendorsController : Controller
+    [Route("[controller]")]
+    [ApiController]
+    public class VendorsController : ControllerBase
     {
         Repository<Vendor, PartsListContext> _vendorsManager;
 
