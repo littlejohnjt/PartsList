@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartsList.Server", "Server\PartsList.Server.csproj", "{97893ABC-5CA0-47CD-881A-985BBF649AE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartsList.Server", "Server\PartsList.Server.csproj", "{97893ABC-5CA0-47CD-881A-985BBF649AE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartsList.Client", "Client\PartsList.Client.csproj", "{B8ECD5F7-271B-4947-9C42-94787F64D31E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartsList.Client", "Client\PartsList.Client.csproj", "{B8ECD5F7-271B-4947-9C42-94787F64D31E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartsList.Shared", "Shared\PartsList.Shared.csproj", "{17D33217-F999-42BE-8C6E-26B958CB01DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartsList.Shared", "Shared\PartsList.Shared.csproj", "{17D33217-F999-42BE-8C6E-26B958CB01DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

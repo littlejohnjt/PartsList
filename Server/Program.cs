@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using PartsList.Server.Data;
+using PartsList.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddTransient<PartsListContext, PartsListContext>();
+builder.Services.AddTransient<Repository<Vendor, PartsListContext>>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

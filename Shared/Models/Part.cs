@@ -17,8 +17,6 @@ namespace PartsList.Shared.Models
 
         public string? RefDes { get; set; }
 
-        public int Quantity { get; set; }
-
         public string? Units { get; set; }
 
         public string? OrganizationId { get; set; }
@@ -29,23 +27,26 @@ namespace PartsList.Shared.Models
 
         public string? Specification { get; set; }
 
+        /// <summary>
+        /// IsDiscontinued - has this part been discontinued.
+        /// </summary>
         public bool? IsDiscontinued { get; set; }
 
         public string? PartUri { get; set; }
 
         public string? Notes { get; set; }
 
-        public Part? IsReplacementFor { get; set; }
+        /// <summary>
+        /// IsReplacementFor - if a part has been discontinued the
+        /// current part will link to the part this is a replacement for.
+        /// </summary>
+        public virtual Part? IsReplacementFor { get; set; }
 
-        public IList<Vendor>? Vendors { get; set; }
+        public int? ISReplacementForPartId { get; set; }
 
-        public IList<Part>? Parts { get; set; }
-
-        public Part? ParentPart { get; set; }
-
-        public decimal? UnitPrice { get; set; }
-
-        [NotMapped]
-        public decimal? TotalQuantityPrice { get => Quantity * UnitPrice; }
+        /// <summary>
+        /// Vendors - a list of vendors that can supply this part.
+        /// </summary>
+        public virtual IList<Vendor>? Vendors { get; set; }
     }
 }
